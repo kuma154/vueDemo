@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.bootcdn.net/ajax/libs/axios/0.19.2/axios.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <title>Document</title>
+    
+</head>
+
+<body>
+    <div id="app">
+        <button @click='addjoke' class="get">笑话获取</button>
+        <ul>
+
+            <li>{{joke}}</li>
+
+        </ul>
+    </div>
+
+   
+    <script>
+        var app=new Vue({
+            el:'#app',
+            data:{
+                joke:''
+            },
+            methods: {
+                addjoke:function(){
+                    var that=this;
+                    axios.get('https://autumnfish.cn/api/joke').then(function(res){
+                       that.joke=res.data;
+                       console.log(that.joke);
+
+                    },function(err){
+                        console.log(err);
+                    })
+                }
+            },
+        })
+
+
+        // document.querySelector('.post').onclick = function () {
+        //     axios.post('https://autumnfish.cn/api/user/reg', {
+        //         username: 'Javk'
+        //     }).then(function (res) {
+        //         var arr1 = res.data;
+        //         console.log(res);
+               
+        //     }, function (err) {
+        //         console.log(err);
+        //     })
+        // }
+    </script>
+
+</body>
+
+</html>

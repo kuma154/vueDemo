@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <style>
+        *{
+            padding: 0;
+            margin: 0;
+            box-sizing: border-box;
+        }
+        body{
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #eee;
+        }
+        .calculator{
+            --button-width:80px;
+            --button-height:80px;
+
+            display: grid;
+            grid-template-areas: "result result result result"
+            "ac plus-minus percent divide"
+            "num-7 num-8 num-9 multiply"
+            "num-4 num-5 num-6 subtract"
+            "num-1 num-2 num-3 add"
+            "num-0 num-0 dot equal";
+
+            grid-template-columns: repeat(4,var(--button-width));
+            grid-template-rows: repeat(6,var(--button-height));
+
+            box-shadow: -8px -8px 16px -10px rgba(255,255,255,1),8px 8px 16px -10px rgba(0, 0, 0, 0.15);
+            padding: 24px;
+            border-radius: 20px;
+            
+        }
+        .calculator button{
+            margin: 8px;
+            padding: 0;
+            border: 0;
+            outline: none;
+            display: block;
+            border-radius: calc(var(--button-height)/2);
+            font-size: 24px;
+            color: #999;
+            font-family: Helvetica, sans-serif;
+            font-weight: normal;
+            background: linear-gradient(135deg,rgba(230,230,230,1) 0%,rgba(246,246,246) 100%);
+            box-shadow: -4px -4px 10px -8px rgba(255, 255, 255, 1),4px 4px 10px -8px rgba(0, 0, 0, 0.3);
+        }
+        .calculator button:active{
+            box-shadow: -4px -4px 10px -8px rgba(255, 255, 255, 1) inset,4px 4px 10px -8px rgba(0, 0, 0, 0.3) inset;
+        }
+        .calculator .result{
+            text-align: right;
+            line-height: 80px;
+            font-size: 48px;
+            font-family: Helvetica, sans-serif;
+            padding: 0 20px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <div class="calculator">
+            <div class="result" style="grid-area: result">{{equation}}</div>
+            <button style="grid-area: ac" @click="clear">AC</button>
+            <button style="grid-area: plus-minus" @click="calculatToggle">+/-</button>
+            <button style="grid-area: percent" @click="calculatPencent">%</button>
+            <button style="grid-area: add" @click="append('+')" >+</button>
+            <button style="grid-area: subtract" @click="append('-')">-</button>
+            <button style="grid-area: multiply" @click="append('*')">*</button>
+            <button style="grid-area: divide" @click="append('/')">/</button>
+            <button style="grid-area: equal" @click="calculat">=</button>
+    
+            <button style="grid-area: num-0" @click='append(0)'>0</button>
+            <button style="grid-area: num-1" @click='append(1)'>1</button>
+            <button style="grid-area: num-2" @click='append(2)'>2</button>
+            <button style="grid-area: num-3" @click='append(3)'>3</button>
+            <button style="grid-area: num-4" @click='append(4)'>4</button>
+            <button style="grid-area: num-5" @click='append(5)'>5</button>
+            <button style="grid-area: num-6" @click='append(6)'>6</button>
+            <button style="grid-area: num-7" @click='append(7)'>7</button>
+            <button style="grid-area: num-8" @click='append(8)'>8</button>
+            <button style="grid-area: num-9" @click='append(9)'>9</button>
+    
+            <button style="grid-area: dot" @click="append('.')">.</button>
+        </div>
+    </div>
+    <script>
+        var vue=new Vue({
+            el:'#app',
+            data:{
+              equation:'0',
+              isDecimaAdded:false,//判断输入多个小数点位
+              isOpeacatAdded:false,//判断输入多个符号 + - 。。。
+              isStarted:false,
+            },
+            methods: {
+                isOperact(e){//选择+ - * / %
+                    return ['+','-','*','/'].indexOf(e) > -1
+                },
+                append(e){ 
+                    if(this.equation === '0' && !this.isOperact(e)){
+                        if(e === '.'){
+                            this.equation+=''+e;
+                            this.isDecimaAdded=true;
+                        }else{
+                            this.equation=''+e;
+                        }
+
+                        this.isStarted=true;
+                        return;
+                    }
+
+                    if(!this.isOperact(e)){
+                        if(e==='.' && this.isDecimaAdded){
+                            return
+                        }
+                        if(e=== '.'){
+                            this.isDecimaAdded=true;
+                            this.isOpeacatAdded=true;
+                        }else{
+                            this.isOpeacatAdded=false;
+                        }
+
+                        this.equation+=''+e;
+                    }
+                    if(this.isOperact(e) && !this.isOpeacatAdded){
+                        this.equation+=''+e;
+                        this.isDecimaAdded=false;
+                        this.isOpeacatAdded=true;
+                    }
+                },
+                calculat(e){//选择 =
+        
+                   this.equation=parseFloat(eval(this.equation).toFixed(9).toString());
+                   this.isDecimaAdded=false;
+                        this.isOpeacatAdded=false;
+                },
+                calculatToggle(e){//点击+/-
+                    if(this.isOpeacatAdded || !this.isStarted){
+                        return
+                    }
+                    this.equation=this.equation+'* -1';
+                    this.calculat();
+                },
+                calculatPencent(e){//点击 %
+                    if(this.isOpeacatAdded || !this.isStarted){
+                        return
+                    }
+                    this.equation=this.equation+'* 0.01';
+                    this.calculat();
+                },
+                clear(e){
+                    this.equation='0';
+                    this.isDecimaAdded=false;//判断输入多个小数点位
+                    this.isOpeacatAdded=false;//判断输入多个符号 + - 。。。
+                    this.isStarted=false;
+                }
+            },
+        })
+    </script>
+</body>
+</html>
